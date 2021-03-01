@@ -1,0 +1,20 @@
+{
+	"name": "ServoPCA9685",
+	"frameworks": "Arduino",
+	"keywords": "Servo PCA9685",
+	"description": "Arduino library for PCA9685-boards which is compatible to the original Servo library.",
+	"authors":
+	[
+		{
+			"name": "Andreas Trappmann",
+			"email": "andreas.trappmann@t-online.de",
+			"url": "https://github.com/ATrappmann/ServoPCA9685",
+			"maintainer": true
+		}
+	],
+	"repository":
+	{
+		"type": "git",
+		"url": "https://github.com/ATrappmann/ServoPCA9685"
+	}
+}
