@@ -80,8 +80,13 @@ bool ServoPCA9685::write(const uint8_t aPos) {
   SEROUT(F("Servo:write(") << aPos << F("), pin=") << pin << LF);
   if (INVALID_SERVO == pin) return false; // no servo attached
   if (aPos > 180) return false; // out of range
+  
+  // limit position
+  if (aPos < lowerLimit) aPos = lowerLimit;
+  if (aPos > upperLimit) aPos = upperLimit;  
   this->position = aPos;
-  uint16_t microseconds = map(position, lowerLimit, upperLimit, minPulse, maxPulse);
+  
+  uint16_t microseconds = map(position, 0, 180, minPulse, maxPulse);
   SEROUT("ms=" << microseconds << LF);
   servoDriver->writeMicroseconds(pin, microseconds);
   return true;
@@ -99,7 +104,7 @@ uint8_t ServoPCA9685::read() const {
 
 uint16_t ServoPCA9685::readMicroseconds() const {
   if (INVALID_SERVO == pin) return INVALID_SERVO; // no servo attached
-  return map(position, lowerLimit, upperLimit, minPulse, maxPulse);
+  return map(position, 0, 180, minPulse, maxPulse);
 }
 
 bool ServoPCA9685::attached() {

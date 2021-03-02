@@ -69,7 +69,7 @@
 #define MAX_PULSE_WIDTH      2400     // the longest pulse sent to a servo
 #define DEFAULT_PULSE_WIDTH  1500     // default pulse width when servo is attached
 #define INVALID_SERVO         255     // flag indicating an invalid servo index
-#define SERVO_FREQ			   50	  // Hz
+#define SERVO_FREQ			       50	    // Hz
 
 class Adafruit_PWMServoDriver;
 
@@ -88,13 +88,13 @@ public:		// compatible methods for Servo Library
 
 public:		// additional methods
   void limit(const uint8_t low, const uint8_t high);	// limit servo movement to specified range of degrees
-  
+
 private:	// private methods
   static Adafruit_PWMServoDriver *initServoDriver();
-  
+
 private:
   static Adafruit_PWMServoDriver *servoDriver;
-  
+
   uint8_t	pin;					 // channel nummer of servo on PCA9586 board
   uint8_t	lowerLimit;				 // minimum rotation degree limit
   uint8_t	upperLimit;			     // maximum rotation degree limit
