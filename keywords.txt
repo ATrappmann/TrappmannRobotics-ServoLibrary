@@ -1,0 +1,44 @@
+#######################################
+# Syntax Coloring Map For TrappmannRobotics
+####################################### 
+# Class
+#######################################
+
+GenericServo	KEYWORD1
+ServoPCA9685	KEYWORD1
+ServoPWM	KEYWORD1
+
+#######################################
+# Methods and Functions 
+#######################################	
+
+servo	KEYWORD2
+pin	KEYWORD2
+currentPulse	KEYWORD2
+minPulse	KEYWORD2
+maxPulse	KEYWORD2
+lowerLimit	KEYWORD2
+upperLimit	KEYWORD2
+
+attach	KEYWORD2
+detach	KEYWORD2
+write	KEYWORD2
+writeAnalog	KEYWORD2
+writeMicroseconds	KEYWORD2
+read	KEYWORD2
+readMicroseconds	KEYWORD2
+attached	KEYWORD2
+limit	KEYWORD2
+getLowerLimit	KEYWORD2
+getUpperLimit	KEYWORD2
+
+#######################################
+# Constants
+#######################################
+
+DEFAULT_PULSE_WIDTH	LITERAL1
+PULSE_RANGE	LITERAL1
+MIN_PULSE_WIDTH	LITERAL1
+MAX_PULSE_WIDTH	LITERAL1
+INVALID_SERVO	LITERAL1
+SERVO_FREQ	LITERAL1

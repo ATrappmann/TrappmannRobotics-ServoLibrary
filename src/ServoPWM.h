@@ -1,15 +1,13 @@
 /*
- * NAME: ServoPCA9685.h
+ * NAME: ServoPWM.h
  *
  * DESC: This library implements an interface given by the original Servo Library
- *   for Arduino to the implementation of the Adafruit-PWM-Servo-Driver-library
- *   which allows us to control 16 Servos via an I2C-bus controlled PCA9685-board
- *   as it is sold from Adafruit (https://www.adafruit.com/product/815).
+ *   for Arduino with additional functions.
  *
- * SOURCE: Code is available at https://github.com/ATrappmann/ServoPCA9685
+ * SOURCE: Code is available at https://github.com/ATrappmann/ServoPWM
  *
  * USES LIBRARIES:
- *  https://github.com/adafruit/Adafruit-PWM-Servo-Driver-Library
+ *  https://github.com/arduino-libraries/Servo
  *
  * MIT License
  *
@@ -33,32 +31,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef SERVO_PCA9685_H
-#define SERVO_PCA9685_H
+#ifndef SERVO_PWM_H
+#define SERVO_PWM_H
 
 #include "GenericServo.h"
+#include <Servo.h>
 
 #define DEFAULT_PULSE_WIDTH  1500     // default pulse width when servo is attached
 #define PULSE_RANGE           956     
 #define MIN_PULSE_WIDTH (DEFAULT_PULSE_WIDTH - PULSE_RANGE)   // the shortest pulse sent to a servo
 #define MAX_PULSE_WIDTH (DEFAULT_PULSE_WIDTH + PULSE_RANGE)   // the longest pulse sent to a servo
 #define INVALID_SERVO         255     // flag indicating an invalid servo index
-#define SERVO_FREQ			       50	    // Hz
 
-class Adafruit_PWMServoDriver;
-
-class ServoPCA9685: public GenericServo
+class ServoPWM: public GenericServo
 {
 private:
-  uint8_t   pin;          // channel nummer of servo on PCA9586 board
-  uint16_t  currentPulse; // current pulse width in microseconds
+  Servo     servo;
   uint16_t  minPulse;     // minimum pulse width in microseconds
-  uint16_t	maxPulse;     // maximum pulse width in microseconds
-  uint8_t 	lowerLimit;   // lower rotation limit for write(), default = 0
-  uint8_t 	upperLimit;   // upper rotation limit for write(), default = 180
+  uint16_t  maxPulse;     // maximum pulse width in microseconds
+  uint8_t   lowerLimit;   // lower rotation limit for write(), default = 0
+  uint8_t   upperLimit;   // upper rotation limit for write(), default = 180
 
 public:
-  ServoPCA9685(const uint8_t addr = 0x40);
+  ServoPWM();
   
   uint8_t attach(const uint8_t pin);      // attach the given pin to the next free channel, sets pinMode, returns channel number or 0 if failure
   uint8_t attach(const uint8_t pin, const uint16_t min, const uint16_t max); // as above but also sets min and max values for writes.
@@ -70,14 +65,11 @@ public:
   uint16_t readMicroseconds();            // returns current pulse width in microseconds for this servo (was read_us() in first release)
   bool attached() const;                  // return true if this servo is attached, otherwise false
 
-public:		// additional methods
-  void limit(uint8_t low, uint8_t high);	// limit servo movement to specified range of degrees
+public:   // additional methods
+  void limit(uint8_t low, uint8_t high);  // limit servo movement to specified range of degrees
   uint8_t getLowerLimit() const { return lowerLimit; }
   uint8_t getUpperLimit() const { return upperLimit; }
 
-private:	// private methods
-  static Adafruit_PWMServoDriver *initServoDriver(const uint8_t addr);
-  static Adafruit_PWMServoDriver *servoDriver;
 };
 
 #endif /* SERVO_PCA9685_H */

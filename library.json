@@ -1,20 +1,20 @@
 {
-	"name": "ServoPCA9685",
+	"name": "TrappmannRobotics-ServoLibrary",
 	"frameworks": "Arduino",
-	"keywords": "Servo PCA9685",
-	"description": "Arduino library for PCA9685-boards which is compatible to the original Servo library.",
+	"keywords": "TrappmannRobotics GenericServo ServoPWM ServoPCA9685 PCA9685 Servo",
+	"description": "Arduino library for different types of Servo actuation throught a GenericServo interface which is compatible to the original Servo library.",
 	"authors":
 	[
 		{
 			"name": "Andreas Trappmann",
 			"email": "andreas.trappmann@t-online.de",
-			"url": "https://github.com/ATrappmann/ServoPCA9685",
+			"url": "https://github.com/ATrappmann/TrappmannRobotics-ServoLibrary",
 			"maintainer": true
 		}
 	],
 	"repository":
 	{
 		"type": "git",
-		"url": "https://github.com/ATrappmann/ServoPCA9685"
+		"url": "https://github.com/ATrappmann/TrappmannRobotics-ServoLibrary"
 	}
 }

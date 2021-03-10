@@ -1,15 +1,13 @@
 /*
- * NAME: ServoPCA9685.cpp
+ * NAME: ServoPWM.cpp
  *
  * DESC: This library implements an interface given by the original Servo Library
- *   for Arduino to the implementation of the Adafruit-PWM-Servo-Driver-library
- *   which allows us to control 16 Servos via an I2C-bus controlled PCA9685-board
- *   as it is sold from Adafruit (https://www.adafruit.com/product/815).
+ *   for Arduino with additional functions.
  *
- * SOURCE: Code is available at https://github.com/ATrappmann/ServoPCA9685
+ * SOURCE: Code is available at https://github.com/ATrappmann/ServoPWM
  *
  * USES LIBRARIES:
- *  https://github.com/adafruit/Adafruit-PWM-Servo-Driver-Library
+ *  https://github.com/arduino-libraries/Servo
  *
  * MIT License
  *
@@ -33,52 +31,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "ServoPCA9685.h"
+#include "ServoPWM.h"
 
 #define DEBUG 1
 #include <TrappmannRobotics.h>
+#include <Arduino.h>
 
-// Library for PCA9685 16-channel I2C servo driver
-#include <Adafruit_PWMServoDriver.h>
-
-Adafruit_PWMServoDriver *ServoPCA9685::servoDriver = NULL;
-Adafruit_PWMServoDriver *ServoPCA9685::initServoDriver(const uint8_t addr) {
-  if (NULL == servoDriver) {
-    servoDriver = new Adafruit_PWMServoDriver(addr);
-    servoDriver->begin();
-    servoDriver->setPWMFreq(SERVO_FREQ);
-  }
-  return servoDriver;
-}
-
-ServoPCA9685::ServoPCA9685(const uint8_t addr) {
-  initServoDriver(addr);
-  
-  this->pin = INVALID_SERVO;
+ServoPWM::ServoPWM() {
   this->lowerLimit = 0;
   this->upperLimit = 180;
-  this->currentPulse = DEFAULT_PULSE_WIDTH;
 }
 
-uint8_t ServoPCA9685::attach(const uint8_t aPin) {
+uint8_t ServoPWM::attach(const uint8_t aPin) {
   SEROUT(F("Servo::attach(pin=") << aPin << ")\n");
   return this->attach(aPin, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
 }
 
-uint8_t ServoPCA9685::attach(const uint8_t aPin, const uint16_t min, const uint16_t max) {
+uint8_t ServoPWM::attach(const uint8_t aPin, const uint16_t min, const uint16_t max) {
   SEROUT(F("Servo::attach(pin=") << aPin << ", minPulse=" << min << ", maxPulse=" << max << ")\n");
-  if (aPin > 15) return INVALID_SERVO;
   if (min > max) return INVALID_SERVO;
 
-  this->pin = aPin;
   this->minPulse = min;
   this->maxPulse = max;
 
-  return pin;	// range is 0-15
+  return servo.attach(aPin, min, max);
 }
 
-void ServoPCA9685::write(uint8_t value) {
-  SEROUT(F("Servo:write(") << value << F("), pin=") << pin << LF);
+void ServoPWM::write(uint8_t value) {
+  SEROUT(F("Servo:write(") << value << F(")\n"));
   // limit position
   if (value < lowerLimit) value = lowerLimit;
   if (value > upperLimit) value = upperLimit;
@@ -87,50 +67,39 @@ void ServoPCA9685::write(uint8_t value) {
   this->writeMicroseconds(microseconds);
 }
 
-void ServoPCA9685::writeMicroseconds(uint16_t value) {
-  SEROUT(F("Servo:writeMicroseconds(") << value << F("), pin=") << pin << LF);
+void ServoPWM::writeMicroseconds(uint16_t value) {
+  SEROUT(F("Servo:writeMicroseconds(") << value << F(")\n"));
   // limit pulse length
   if (value < minPulse) value = minPulse;
   if (value > maxPulse) value = maxPulse;
-  this->currentPulse = value;
-  if (INVALID_SERVO != pin) {
-    servoDriver->writeMicroseconds(pin, value);
-  }
+  servo.writeMicroseconds(value);
 }
 
-void ServoPCA9685::writeAnalog(uint16_t value) {
-  SEROUT(F("Servo:writeAnalog(") << value << F("), pin=") << pin << LF);
+void ServoPWM::writeAnalog(uint16_t value) {
+  SEROUT(F("Servo:writeAnalog(") << value << F(")\n"));
   // limit to 10-bit analog values
   if (value > 1023) value = 1023;
   uint16_t microseconds = map(value, 0, 1023, minPulse, maxPulse);
   this->writeMicroseconds(microseconds);
 }
 
-void ServoPCA9685::detach() {
-  if (INVALID_SERVO == pin) return; // no servo attached
-  servoDriver->setPin(pin, 0, false);
-  pin = INVALID_SERVO;
+void ServoPWM::detach() {
+  servo.detach();
 }
 
-uint8_t ServoPCA9685::read() {
-  if (INVALID_SERVO == pin) return INVALID_SERVO; // no servo attached
-  uint8_t position = map(currentPulse, minPulse, maxPulse, 0, 180);
-  return position;
+uint8_t ServoPWM::read() {
+  return servo.read();
 }
 
-uint16_t ServoPCA9685::readMicroseconds() {
-  if (INVALID_SERVO == pin) return INVALID_SERVO; // no servo attached
-  return currentPulse;
+uint16_t ServoPWM::readMicroseconds() {
+  return servo.readMicroseconds();
 }
 
-bool ServoPCA9685::attached() const {
-  if (INVALID_SERVO == pin) {
-	   return false;
-  }
-  else return true;
+bool ServoPWM::attached() const {
+  return servo.attached();
 }
 
-void ServoPCA9685::limit(uint8_t low, uint8_t high) {
+void ServoPWM::limit(uint8_t low, uint8_t high) {
   if (high > 180) high = 180;
   if (low >= high) low = high;
 
