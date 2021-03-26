@@ -37,9 +37,17 @@
 #include <TrappmannRobotics.h>
 #include <Arduino.h>
 
-ServoPWM::ServoPWM() {
+void ServoPWM::initDefaults() {
   this->lowerLimit = 0;
   this->upperLimit = 180;
+}
+
+ServoPWM::ServoPWM() : GenericServo() {
+  initDefaults();
+}
+
+ServoPWM::ServoPWM(const uint8_t pin) : GenericServo(pin) {
+  initDefaults();
 }
 
 uint8_t ServoPWM::attach(const uint8_t aPin) {
@@ -47,21 +55,21 @@ uint8_t ServoPWM::attach(const uint8_t aPin) {
   return this->attach(aPin, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
 }
 
-uint8_t ServoPWM::attach(const uint8_t aPin, const uint16_t min, const uint16_t max) {
-  SEROUT(F("Servo::attach(pin=") << aPin << ", minPulse=" << min << ", maxPulse=" << max << ")\n");
-  if (min > max) return INVALID_SERVO;
+uint8_t ServoPWM::attach(const uint8_t aPin, const uint16_t minPulse, const uint16_t maxPulse) {
+  SEROUT(F("Servo::attach(pin=") << aPin << ", minPulse=" << minPulse << ", maxPulse=" << maxPulse << ")\n");
+  if (minPulse > maxPulse) return INVALID_SERVO;
+  if (INVALID_SERVO != pin) detach();
 
-  this->minPulse = min;
-  this->maxPulse = max;
+  this->minPulse = minPulse;
+  this->maxPulse = maxPulse;
 
-  return servo.attach(aPin, min, max);
+  return servo.attach(aPin, minPulse, maxPulse);
 }
 
 void ServoPWM::write(uint8_t value) {
   SEROUT(F("Servo:write(") << value << F(")\n"));
   // limit position
-  if (value < lowerLimit) value = lowerLimit;
-  if (value > upperLimit) value = upperLimit;
+  value = constrain(value, lowerLimit, upperLimit);
   // map to pulse width
   uint16_t microseconds = map(value, 0, 180, minPulse, maxPulse);
   this->writeMicroseconds(microseconds);
@@ -70,9 +78,10 @@ void ServoPWM::write(uint8_t value) {
 void ServoPWM::writeMicroseconds(uint16_t value) {
   SEROUT(F("Servo:writeMicroseconds(") << value << F(")\n"));
   // limit pulse length
-  if (value < minPulse) value = minPulse;
-  if (value > maxPulse) value = maxPulse;
-  servo.writeMicroseconds(value);
+  value = constrain(value, minPulse, maxPulse);
+  if (INVALID_SERVO != pin) {
+    servo.writeMicroseconds(value);
+  }
 }
 
 void ServoPWM::writeAnalog(uint16_t value) {

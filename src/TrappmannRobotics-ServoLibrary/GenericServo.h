@@ -39,8 +39,17 @@
 
 #include <inttypes.h>
 
+#define INVALID_SERVO         255     // flag indicating an invalid servo index
+
 class GenericServo {
+protected:
+  uint8_t pin;
+
 public:
+  GenericServo() { this->pin = INVALID_SERVO; }
+  GenericServo(const uint8_t pin) { this->pin = pin; }
+  uint8_t attach() { attach(pin); }
+
   /*
    * attach the given pin/channel for controlling the servo and power it up.
    * @param pin: pin or channel number the servo is controlled with.

@@ -51,13 +51,20 @@ Adafruit_PWMServoDriver *ServoPCA9685::initServoDriver(const uint8_t addr) {
   return servoDriver;
 }
 
-ServoPCA9685::ServoPCA9685(const uint8_t addr) {
-  initServoDriver(addr);
-  
-  this->pin = INVALID_SERVO;
+void ServoPCA9685::initDefaults() {
   this->lowerLimit = 0;
   this->upperLimit = 180;
   this->currentPulse = DEFAULT_PULSE_WIDTH;
+}
+
+ServoPCA9685::ServoPCA9685(const uint8_t addr) : GenericServo() {
+  initServoDriver(addr);
+  initDefaults();
+}
+
+ServoPCA9685::ServoPCA9685(const uint8_t pin, const uint8_t addr) : GenericServo(pin) {
+  initServoDriver(addr);
+  initDefaults();
 }
 
 uint8_t ServoPCA9685::attach(const uint8_t aPin) {
@@ -69,6 +76,7 @@ uint8_t ServoPCA9685::attach(const uint8_t aPin, const uint16_t min, const uint1
   SEROUT(F("Servo::attach(pin=") << aPin << ", minPulse=" << min << ", maxPulse=" << max << ")\n");
   if (aPin > 15) return INVALID_SERVO;
   if (min > max) return INVALID_SERVO;
+  if (INVALID_SERVO != pin) detach();
 
   this->pin = aPin;
   this->minPulse = min;
@@ -80,8 +88,7 @@ uint8_t ServoPCA9685::attach(const uint8_t aPin, const uint16_t min, const uint1
 void ServoPCA9685::write(uint8_t value) {
   SEROUT(F("Servo:write(") << value << F("), pin=") << pin << LF);
   // limit position
-  if (value < lowerLimit) value = lowerLimit;
-  if (value > upperLimit) value = upperLimit;
+  value = constrain(value, lowerLimit, upperLimit);
   // map to pulse width
   uint16_t microseconds = map(value, 0, 180, minPulse, maxPulse);
   this->writeMicroseconds(microseconds);
@@ -90,8 +97,7 @@ void ServoPCA9685::write(uint8_t value) {
 void ServoPCA9685::writeMicroseconds(uint16_t value) {
   SEROUT(F("Servo:writeMicroseconds(") << value << F("), pin=") << pin << LF);
   // limit pulse length
-  if (value < minPulse) value = minPulse;
-  if (value > maxPulse) value = maxPulse;
+  value = constrain(value, minPulse, maxPulse);
   this->currentPulse = value;
   if (INVALID_SERVO != pin) {
     servoDriver->writeMicroseconds(pin, value);

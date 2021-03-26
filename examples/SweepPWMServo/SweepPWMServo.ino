@@ -1,6 +1,6 @@
 // NAME: SweepPWMServo.ino
 //
-#include "ServoPWM.h"
+#include <TrappmannRobotics-ServoLibrary/ServoPWM.h>"
 
 ServoPWM  myservo;
 
@@ -13,7 +13,7 @@ void setup() {
   Serial.print("MIN_PULSE_WIDTH: "); Serial.println(MIN_PULSE_WIDTH);
   myservo.writeMicroseconds(MIN_PULSE_WIDTH);
   delay(5000);
-  
+
   Serial.print("DEFAULT_PULSE_WIDTH: "); Serial.println(DEFAULT_PULSE_WIDTH);
   myservo.writeMicroseconds(DEFAULT_PULSE_WIDTH);
   delay(5000);

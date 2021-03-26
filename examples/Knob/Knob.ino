@@ -7,7 +7,7 @@
  http://www.arduino.cc/en/Tutorial/Knob
 */
 
-#include <ServoPCA9685.h>
+#include <TrappmannRobotics-ServoLibrary.h>
 
 ServoPCA9685 myservo;  // create servo object to control a servo
 

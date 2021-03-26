@@ -1,6 +1,6 @@
 // NAME: SweepPCA9685Servo.ino
 //
-#include "ServoPCA9685.h"
+#include <TrappmannRobotics-ServoLibrary/ServoPCA9685.h>
 
 ServoPCA9685  myservo;
 
@@ -13,7 +13,7 @@ void setup() {
   Serial.print("MIN_PULSE_WIDTH: "); Serial.println(MIN_PULSE_WIDTH);
   myservo.writeMicroseconds(MIN_PULSE_WIDTH);
   delay(5000);
-  
+
   Serial.print("DEFAULT_PULSE_WIDTH: "); Serial.println(DEFAULT_PULSE_WIDTH);
   myservo.writeMicroseconds(DEFAULT_PULSE_WIDTH);
   delay(5000);

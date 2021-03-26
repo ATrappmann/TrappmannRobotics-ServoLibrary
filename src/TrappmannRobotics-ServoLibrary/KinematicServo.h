@@ -1,13 +1,11 @@
 /*
- * NAME: ServoPWM.h
+ * NAME: KinematicServo.h
  *
- * DESC: This library implements an interface given by the original Servo Library
- *   for Arduino with additional functions.
+ * DESC: This class adds kinematic features for the movement of a servo.
  *
- * SOURCE: Code is available at https://github.com/ATrappmann/ServoPWM
+ * This file is part of the TrappmannRobotics-ServoLibrary.
  *
- * USES LIBRARIES:
- *  https://github.com/arduino-libraries/Servo
+ * SOURCE: Code is available at https://github.com/ATrappmann/TrappmannRobotics-ServoLibrary
  *
  * MIT License
  *
@@ -31,30 +29,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef SERVO_PWM_H
-#define SERVO_PWM_H
+#ifndef KINEMATIC_SERVO_H
+#define KINEMATIC_SERVO_H
 
-#include "GenericServo.h"
-#include <Servo.h>
+#include <TrappmannRobotics-ServoLibrary/GenericServo.h>
 
-#define DEFAULT_PULSE_WIDTH  1500     // default pulse width when servo is attached
-#define PULSE_RANGE           956     
-#define MIN_PULSE_WIDTH (DEFAULT_PULSE_WIDTH - PULSE_RANGE)   // the shortest pulse sent to a servo
-#define MAX_PULSE_WIDTH (DEFAULT_PULSE_WIDTH + PULSE_RANGE)   // the longest pulse sent to a servo
-#define INVALID_SERVO         255     // flag indicating an invalid servo index
+struct ServoMove;
 
-class ServoPWM: public GenericServo
-{
+class KinematicServo: public GenericServo {
 private:
-  Servo     servo;
-  uint16_t  minPulse;     // minimum pulse width in microseconds
-  uint16_t  maxPulse;     // maximum pulse width in microseconds
-  uint8_t   lowerLimit;   // lower rotation limit for write(), default = 0
-  uint8_t   upperLimit;   // upper rotation limit for write(), default = 180
+  GenericServo *servo;
+  uint16_t  maxSpeed;   // in °/s
+
+  uint8_t initialPosition;
+  float   currentPosition;
+  float   currentSpeed;
+  float   currentAcceleration;
+
+  ServoMove *currentMove;
+  float     gestureLength;    // in +/- degrees
+  uint32_t  gestureDuration;  // in ms
 
 public:
-  ServoPWM();
+  KinematicServo(const GenericServo *servo, const uint8_t initalPosition, const uint8_t minPos, const uint8_t maxPos, const uint16_t maxSpeed = 600);
+  uint8_t attach();
   
+public: // GenericServo interface
   uint8_t attach(const uint8_t pin);      // attach the given pin to the next free channel, sets pinMode, returns channel number or 0 if failure
   uint8_t attach(const uint8_t pin, const uint16_t min, const uint16_t max); // as above but also sets min and max values for writes.
   void detach();
@@ -64,12 +64,31 @@ public:
   uint8_t read();                         // returns current pulse width as an angle between 0 and 180 degrees
   uint16_t readMicroseconds();            // returns current pulse width in microseconds for this servo (was read_us() in first release)
   bool attached() const;                  // return true if this servo is attached, otherwise false
-
-public:   // additional methods
   void limit(uint8_t low, uint8_t high);  // limit servo movement to specified range of degrees
-  uint8_t getLowerLimit() const { return lowerLimit; }
-  uint8_t getUpperLimit() const { return upperLimit; }
+  uint8_t getLowerLimit() const;
+  uint8_t getUpperLimit() const;
 
+public: // KinematicServo interface
+  uint16_t getMaxSpeed() const { return maxSpeed; }
+  uint8_t  getInitialPosition() const { return initialPosition; }
+
+  uint8_t getCurrentPosition() const { return currentPosition; }
+  void    setCurrentPosition(uint8_t pos);
+
+  float   getCurrentSpeed() const { return currentSpeed; }
+  void    setCurrentSpeed(float speed);
+
+  float   getCurrentAcceleration() const { return currentAcceleration; }
+  void    setCurrentAcceleration(const float accel);
+
+  ServoMove *getCurrentMove() const { return currentMove; }
+  void       setCurrentMove(ServoMove *move);
+
+  float   getGestureLength() const { return gestureLength; }
+  void    setGestureLength(const float degrees);
+
+  uint32_t  getGestureDuration() const { return gestureDuration; }
+  void      setGestureDuration(const uint32_t duration);
 };
 
-#endif /* SERVO_PCA9685_H */
+#endif /* KINEMATIC_SERVO_H */
